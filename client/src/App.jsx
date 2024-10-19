@@ -5,6 +5,8 @@ import AdminLogin from "./pages/LoginPages/AdminLogin";
 import DriverLogin from "./pages/LoginPages/DriverLogin";
 import UserLogin from "./pages/LoginPages/UserLogin";
 import AdminDashboard from "./pages/AdminPages/AdminDashboard";
+import AvailableVehicles from "./pages/AdminPages/FleetManagement/AvailableVehicles";
+import DriverPerformance from "./pages/AdminPages/DataAnalytics/DriverPerformance";
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
           <Route path="/driverLogin" element={<DriverLogin/>} />
           <Route path="/userLogin" element={<UserLogin/>} />
           <Route path="/admin/dashboard" element={<AdminDashboard/>} />
+          <Route path="/admin/availableVehicles" element={<AvailableVehicles/>} />
+          <Route path="/admin/driverPerformance" element={<DriverPerformance/>} />
         </Routes>
       </div>
     </Router>

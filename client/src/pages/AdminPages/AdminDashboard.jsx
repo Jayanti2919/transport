@@ -44,7 +44,7 @@ const AdminDashboard = () => {
   };
   return (
     <div className="relative">
-      <AdminSideNav active="home"/>
+      <AdminSideNav active="home" fleetMgmt={false} dataAnalytics={false}/>
       <div className="ml-52 px-10 py-6 flex flex-col gap-10">
         <div>
           <span className="rammetto capitalize text-secondary text-shadow text-4xl">

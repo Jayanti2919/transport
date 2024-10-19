@@ -7,9 +7,9 @@ import { useState } from "react";
 import { adminNavOptionsFleet, adminNavOptionsData } from "../constants";
 import { useNavigate } from "react-router-dom";
 
-const AdminSideNav = ({ active }) => {
-  const [fleetMgmtActive, setFleetMgmtActive] = useState(false);
-  const [dataAnalyticsActive, setDataAnalyticsActive] = useState(false);
+const AdminSideNav = ({ active, fleetMgmt, dataAnalytics }) => {
+  const [fleetMgmtActive, setFleetMgmtActive] = useState(fleetMgmt);
+  const [dataAnalyticsActive, setDataAnalyticsActive] = useState(dataAnalytics);
   const nav = useNavigate();
   return (
     <div className="bg-secondary absolute left-0 min-h-screen h-full px-5 flex flex-col gap-6 whitespace-normal text-wrap min-w-52 max-w-52">

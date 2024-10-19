@@ -9,6 +9,7 @@ export default {
       "primary": "#FFD06F",
       "secondary": "#FAECBA",
       "accent": "#A78D7F",
+      "accent2": "#FFE292",
     },
     extend: {},
   },

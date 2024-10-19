@@ -3,6 +3,8 @@ import { FaPersonMilitaryPointing } from "react-icons/fa6";
 import { IoMdCalendar } from "react-icons/io";
 import { MdTrain } from "react-icons/md";
 import { IoSpeedometerOutline } from "react-icons/io5";
+import { IoMdAddCircleOutline } from "react-icons/io";
+import { IoMdRemoveCircleOutline } from "react-icons/io";
 
 const adminNavOptionsFleet = [
     {
@@ -35,4 +37,29 @@ const adminNavOptionsData = [
     },
 ]
 
-export { adminNavOptionsFleet, adminNavOptionsData }
+const vehicleAdminOptions = [
+    {
+        title: "All Vehicles",
+        icon: IoIosCar,
+    },
+    {
+        title: "Onboard New Vehicle",
+        icon: IoMdAddCircleOutline,
+    },
+    {
+        title: "Remove a Vehicle",
+        icon: IoMdRemoveCircleOutline,
+    }
+]
+
+const vehicleDisplayTitles = [
+    "vehicle number",
+    "driver name",
+    "driver phone",
+    "status",
+    "current location",
+    "vehicle type",
+    "vehicle model",
+]
+
+export { adminNavOptionsFleet, adminNavOptionsData, vehicleAdminOptions, vehicleDisplayTitles };
