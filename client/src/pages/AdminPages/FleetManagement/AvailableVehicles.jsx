@@ -25,6 +25,7 @@ const AvailableVehicles = () => {
           {vehicleAdminOptions.map((option) => {
             return (
               <div
+                key={option.title}
                 className={`flex items-center justify-center ${
                   activeOption === option.title ? "bg-secondary" : "bg-accent2"
                 } shadow-md p-4 rounded-md gap-2 cursor-pointer`}
