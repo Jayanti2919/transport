@@ -1,8 +1,11 @@
-import React from 'react'
+import React from 'react';
+import AdminSideNav from '../../components/AdminSideNav';
 
 const AdminDashboard = () => {
   return (
-    <div>AdminDashboard</div>
+    <div className='relative'>
+      <AdminSideNav />
+    </div>
   )
 }
 

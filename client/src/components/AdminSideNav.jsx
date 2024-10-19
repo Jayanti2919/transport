@@ -1,0 +1,91 @@
+import React from "react";
+import { logo } from "../assets";
+import { IoHomeOutline } from "react-icons/io5";
+import { MdKeyboardArrowRight } from "react-icons/md";
+import { MdKeyboardArrowDown } from "react-icons/md";
+import { useState } from "react";
+import { adminNavOptionsFleet, adminNavOptionsData } from "../constants";
+import { useNavigate } from "react-router-dom";
+
+const AdminSideNav = () => {
+  const [fleetMgmtActive, setFleetMgmtActive] = useState(false);
+  const [dataAnalyticsActive, setDataAnalyticsActive] = useState(false);
+  const nav = useNavigate();
+  return (
+    <div className="bg-secondary absolute left-0 min-h-screen px-5 flex flex-col gap-6 whitespace-normal text-wrap max-w-52">
+      <div className="mt-10">
+        <img src={logo} alt="logo" />
+      </div>
+      <div className="flex gap-2 hover:cursor-pointer items-center">
+        <IoHomeOutline className="text-md" />
+        <span className="">Home</span>
+      </div>
+      <div>
+        <div
+          className="flex gap-1 items-center cursor-pointer"
+          onClick={() => {
+            setFleetMgmtActive(!fleetMgmtActive);
+          }}
+        >
+          <MdKeyboardArrowRight
+            className={`${fleetMgmtActive ? "hidden" : "block"}`}
+          />
+          <MdKeyboardArrowDown
+            className={`${fleetMgmtActive ? "block" : "hidden"}`}
+          />
+          <span>Fleet Management</span>
+        </div>
+        <div className={`${fleetMgmtActive ? "block" : "hidden"} pl-6 mt-2`}>
+          <ul className="flex flex-col gap-5 text-sm">
+            {adminNavOptionsFleet.map((item, index) => (
+              <li
+                key={index}
+                className="flex gap-2 hover:cursor-pointer items-center"
+                onClick={() => {
+                  nav(item.link);
+                }}
+              >
+                <item.icon className="text-xl" />
+                <span>{item.title}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div
+          className="flex gap-1 items-center cursor-pointer"
+          onClick={() => {
+            setDataAnalyticsActive(!dataAnalyticsActive);
+          }}
+        >
+          <MdKeyboardArrowRight
+            className={`${dataAnalyticsActive ? "hidden" : "block"}`}
+          />
+          <MdKeyboardArrowDown
+            className={`${dataAnalyticsActive ? "block" : "hidden"}`}
+          />
+          <span>Data Analytics</span>
+        </div>
+        <div className={`${dataAnalyticsActive ? "block" : "hidden"} pl-6 mt-2`}>
+          <ul className="flex flex-col gap-5 text-sm">
+            {adminNavOptionsData.map((item, index) => (
+              <li
+                key={index}
+                className="flex gap-2 hover:cursor-pointer items-center"
+                onClick={() => {
+                  nav(item.link);
+                }}
+              >
+                <item.icon className="text-xl" />
+                <span>{item.title}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminSideNav;
