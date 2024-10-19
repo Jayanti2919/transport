@@ -17,3 +17,16 @@
 .text-shadow {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
+
+::-webkit-scrollbar {
+  width: 0.5em;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(99, 97, 97, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(168, 160, 160, 0.2);
+}

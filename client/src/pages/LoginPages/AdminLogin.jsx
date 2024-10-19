@@ -19,7 +19,7 @@ const AdminLogin = () => {
     setButtonText('send otp');
     setStatus('email');
     console.log(status);
-    nav('/adminDashboard');
+    nav('/admin/dashboard');
   }
 
   const handleSubmit = (e) => {
