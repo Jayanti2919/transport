@@ -2,9 +2,13 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
+const proxyServer = require('./proxy/proxy_server');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+
+app.use('/proxy', proxyServer);
 
 // HTTP server and Socket.io server
 const server = http.createServer(app);
