@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Outer pin -->
+  <path
+    d="M12 0C8.14 0 5 3.14 5 7c0 3.94 7 16.5 7 16.5S19 10.94 19 7c0-3.86-3.14-7-7-7z"
+    fill="red"
+    stroke="black"
+    stroke-width="0.5"
+  />
+  <!-- Inner white circle -->
+  <circle cx="12" cy="7" r="3" fill="white" />
+</svg>

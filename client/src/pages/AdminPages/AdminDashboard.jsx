@@ -15,8 +15,8 @@ const AdminDashboard = () => {
       source: "BBSR",
       destination: "CTC",
       ETA: "14:00",
-      sourcepts: [20.2961, 85.8245],
-      destinationpts: [20.2971, 85.8242],
+      sourcepts: {lat: 20.2961, lng: 85.8245},
+      destinationpts: {lat: 20.2971, lng: 85.8242},
     },
     {
       id: 2,
@@ -25,8 +25,8 @@ const AdminDashboard = () => {
       source: "BBSR",
       destination: "CTC",
       ETA: "14:00",
-      sourcepts: [20.2961, 85.8245],
-      destinationpts: [20.2971, 85.8242],
+      sourcepts: {lat: 22.2961, lng: 85.8245},
+      destinationpts: {lat: 20.2971, lng: 84.8242},
     },
     {
       id: 3,
@@ -35,21 +35,23 @@ const AdminDashboard = () => {
       source: "BBSR",
       destination: "CTC",
       ETA: "14:00",
-      sourcepts: [20.2961, 85.8245],
-      destinationpts: [20.2971, 85.8242],
+      sourcepts: {lat: 20.2961, lng: 85.8245},
+      destinationpts: {lat: 20.2971, lng: 85.8242},
     },
   ]);
   const [tripID, setTripID] = useState("");
-  const [selectedTrip, setSelectedTrip] = useState(activeTrips[0].id);
+  const [selectedTrip, setSelectedTrip] = useState(0);
 
   const handleTrack = (e) => {
     e.preventDefault();
     console.log(tripID);
   };
 
-  const handleTripClick = (trip) => {
+  const handleTripClick = (trip, index) => {
     console.log(trip);
+    setSelectedTrip(index);
   };
+
   return (
     <div className="relative">
       <AdminSideNav active="home" fleetMgmt={false} dataAnalytics={false}/>
@@ -90,15 +92,15 @@ const AdminDashboard = () => {
             </form>
             <span className="text-xs">or choose from below acive trips</span>
             <div style={{ height: "150px", overflowY: "auto" }}>
-              {activeTrips.map((trip) => (
-                <div key={trip.id} onClick={() => handleTripClick(trip)}>
+              {activeTrips.map((trip, index) => (
+                <div key={trip.id} onClick={() => handleTripClick(trip, index)} className={`${selectedTrip === index? 'border border-1': 'border-none'} px-2`}>
                   <TripDisplayAdmin trip={trip} />
                 </div>
               ))}
             </div>
           </div>
           <div>
-            <VehicleMap />
+            <VehicleMap source={activeTrips[selectedTrip].sourcepts} destination={activeTrips[selectedTrip].destinationpts}/>
           </div>
         </div>
       </div>
