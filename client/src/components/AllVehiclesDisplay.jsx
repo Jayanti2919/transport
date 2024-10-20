@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IoFilterOutline } from "react-icons/io5";
 import { vehicleDisplayTitles } from "../constants";
 import TablePagination from "@mui/material/TablePagination";
@@ -21,6 +21,7 @@ const AllVehiclesDisplay = () => {
   const [availableCheck, setAvailableCheck] = useState(false);
   const [offlineCheck, setOfflineCheck] = useState(false);
   const [inTransitCheck, setInTransitCheck] = useState(false);
+  const [vehicleSearch, setVehicleSearch] = useState("");
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -56,11 +57,19 @@ const AllVehiclesDisplay = () => {
 
   // Apply filters
   const filteredData = mockVehicleData.filter((vehicle) => {
-    if (availableCheck && vehicle.status === "Available") return true;
-    if (offlineCheck && vehicle.status === "Offline") return true;
-    if (inTransitCheck && vehicle.status === "In transit") return true;
-    if (!availableCheck && !offlineCheck && !inTransitCheck) return true; // No filter selected
-    return false;
+    // If there is a search term, match it with vehicle number (partial match)
+    const isMatchingSearch =
+      vehicleSearch.length === 0 ||
+      vehicle.number.toLowerCase().includes(vehicleSearch.toLowerCase());
+
+    // If no filters are selected, return all vehicles or apply status filter
+    const isMatchingStatus =
+      (!availableCheck && !offlineCheck && !inTransitCheck) ||
+      (availableCheck && vehicle.status === "Available") ||
+      (offlineCheck && vehicle.status === "Offline") ||
+      (inTransitCheck && vehicle.status === "In transit");
+
+    return isMatchingSearch && isMatchingStatus;
   });
 
   // Pagination logic to slice filtered data
@@ -95,7 +104,9 @@ const AllVehiclesDisplay = () => {
                 }}
               >
                 <div className="h-4 w-4 bg-secondary text-center">
-                  <FaCheck className={`${availableCheck ? "block" : "hidden"}`} />
+                  <FaCheck
+                    className={`${availableCheck ? "block" : "hidden"}`}
+                  />
                 </div>
                 <span>Available</span>
               </li>
@@ -117,25 +128,26 @@ const AllVehiclesDisplay = () => {
                 }}
               >
                 <div className="h-4 w-4 bg-secondary">
-                  <FaCheck className={`${inTransitCheck ? "block" : "hidden"}`} />
+                  <FaCheck
+                    className={`${inTransitCheck ? "block" : "hidden"}`}
+                  />
                 </div>
                 <span>In Transit</span>
               </li>
             </ul>
           </div>
         </div>
-        <form className="flex gap-2 items-center justify-center">
+        <form
+          className="flex gap-2 items-center justify-center"
+          onSubmit={(e) => e.preventDefault()} // Prevent form from reloading the page
+        >
           <input
             type="text"
             placeholder="Search by vehicle number"
             className="py-2 px-4 active:border-none text-accent rounded-full focus:outline-none text-xs"
+            value={vehicleSearch}
+            onChange={(e) => setVehicleSearch(e.target.value)}
           />
-          <button
-            type="submit"
-            className="bg-accent2 hover:bg-secondary shadow-lg text-white px-4 py-2 rounded-full text-xs"
-          >
-            <span>Search</span>
-          </button>
         </form>
       </div>
 
