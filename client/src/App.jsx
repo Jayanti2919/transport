@@ -7,7 +7,10 @@ import UserLogin from "./pages/LoginPages/UserLogin";
 import AdminDashboard from "./pages/AdminPages/AdminDashboard";
 import AvailableVehicles from "./pages/AdminPages/FleetManagement/AvailableVehicles";
 import DriverPerformance from "./pages/AdminPages/DataAnalytics/DriverPerformance";
-import Test from "./pages/Test";
+import TripAnalytics from "./pages/AdminPages/DataAnalytics/TripAnalytics";
+import BookingData from "./pages/AdminPages/FleetManagement/BookingData";
+import DriverActivity from "./pages/AdminPages/FleetManagement/DriverActivity";
+import UserDashboard from "./pages/UserPages/UserDashboard";
 
 function App() {
   return (
@@ -18,10 +21,17 @@ function App() {
           <Route path="/adminLogin" element={<AdminLogin/>} />
           <Route path="/driverLogin" element={<DriverLogin/>} />
           <Route path="/userLogin" element={<UserLogin/>} />
+          
+          {/* Admin Pages */}
           <Route path="/admin/dashboard" element={<AdminDashboard/>} />
           <Route path="/admin/availableVehicles" element={<AvailableVehicles/>} />
           <Route path="/admin/driverPerformance" element={<DriverPerformance/>} />
-          <Route path="/maptest" element={<Test/>} />
+          <Route path="/admin/tripAnalytics" element={<TripAnalytics/>} />
+          <Route path="/admin/bookingData" element={<BookingData/>} />
+          <Route path="/admin/driverActivity" element={<DriverActivity/>} />
+
+          {/* User Pages */}
+          <Route path="/user/dashboard" element={<UserDashboard/>} />
         </Routes>
       </div>
     </Router>

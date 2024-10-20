@@ -62,4 +62,10 @@ const vehicleDisplayTitles = [
     "vehicle model",
 ]
 
-export { adminNavOptionsFleet, adminNavOptionsData, vehicleAdminOptions, vehicleDisplayTitles };
+const userDashboardOptions = [
+    "Current Trip",
+    "Book a Trip",
+    "Trip History",
+]
+
+export { adminNavOptionsFleet, adminNavOptionsData, vehicleAdminOptions, vehicleDisplayTitles, userDashboardOptions };

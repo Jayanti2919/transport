@@ -6,6 +6,7 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { useState } from "react";
 import { adminNavOptionsFleet, adminNavOptionsData } from "../constants";
 import { useNavigate } from "react-router-dom";
+import { MdOutlineLogout } from "react-icons/md";
 
 const AdminSideNav = ({ active, fleetMgmt, dataAnalytics }) => {
   const [fleetMgmtActive, setFleetMgmtActive] = useState(fleetMgmt);
@@ -100,6 +101,15 @@ const AdminSideNav = ({ active, fleetMgmt, dataAnalytics }) => {
             ))}
           </ul>
         </div>
+      </div>
+      <div
+        className={`flex gap-2 hover:cursor-pointer items-center rounded-md px-1 py-1`}
+        onClick={() => {
+          nav("/");
+        }}
+      >
+        <MdOutlineLogout className="text-md" />
+        <span className="">Logout</span>
       </div>
     </div>
   );
