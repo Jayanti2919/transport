@@ -7,6 +7,7 @@ import UserLogin from "./pages/LoginPages/UserLogin";
 import AdminDashboard from "./pages/AdminPages/AdminDashboard";
 import AvailableVehicles from "./pages/AdminPages/FleetManagement/AvailableVehicles";
 import DriverPerformance from "./pages/AdminPages/DataAnalytics/DriverPerformance";
+import Test from "./pages/Test";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard/>} />
           <Route path="/admin/availableVehicles" element={<AvailableVehicles/>} />
           <Route path="/admin/driverPerformance" element={<DriverPerformance/>} />
+          <Route path="/maptest" element={<Test/>} />
         </Routes>
       </div>
     </Router>
