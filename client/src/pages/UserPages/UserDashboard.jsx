@@ -8,7 +8,7 @@ import TripHistory from "../../components/TripHistory";
 const UserDashboard = () => {
   const [name, setName] = useState("User");
   const [activeOption, setActiveOption] = useState(0);
-  const [currentTrip, setCurrentTrip] = useState(null);
+  const [currentTrip, setCurrentTrip] = useState({location: "hi"});
   return (
     <div className="px-5 py-10 flex flex-col gap-8">
       <div className="text-4xl rammetto text-secondary text-shadow">

@@ -1,43 +1,35 @@
 const express = require('express');
 const http = require('http');
-const { Server } = require('socket.io');
+const socketIo = require('socket.io');
 const cors = require('cors');
 
 const app = express();
-const server = http.createServer(app);
-
 app.use(cors());
 
-// Initialize Socket.IO
-const io = new Server(server, {
+// HTTP server and Socket.io server
+const server = http.createServer(app);
+const io = socketIo(server, {
   cors: {
     origin: "*",
-  },
+    methods: ["GET", "POST"]
+  }
 });
 
-const drivers = {};
-
-// Socket.IO connection handler
+// Socket connection
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  socket.on('driverLocationUpdate', (location) => {
-    console.log('Location from driver:', location);
-
-    drivers[socket.id] = location;
-
-    io.emit('updateLocation', location);
+  socket.on('driverLocationUpdate', (locationData) => {
+    console.log('Driver location received:', locationData);
+    // Broadcast the location to all connected customers
+    io.emit('broadcastDriverLocation', locationData);
   });
 
-  // Handle disconnection
   socket.on('disconnect', () => {
-    console.log('A user disconnected:', socket.id);
-    delete drivers[socket.id];
+    console.log('User disconnected:', socket.id);
   });
 });
 
 // Start the server
 const PORT = 5000;
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

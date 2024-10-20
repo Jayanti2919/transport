@@ -11,6 +11,7 @@ import TripAnalytics from "./pages/AdminPages/DataAnalytics/TripAnalytics";
 import BookingData from "./pages/AdminPages/FleetManagement/BookingData";
 import DriverActivity from "./pages/AdminPages/FleetManagement/DriverActivity";
 import UserDashboard from "./pages/UserPages/UserDashboard";
+import DriverApp from "./pages/DriverPages/DriverApp";
 
 function App() {
   return (
@@ -32,6 +33,9 @@ function App() {
 
           {/* User Pages */}
           <Route path="/user/dashboard" element={<UserDashboard/>} />
+
+          {/* Driver Pages */}
+          <Route path="/driver/dashboard" element={<DriverApp/>} />
         </Routes>
       </div>
     </Router>
