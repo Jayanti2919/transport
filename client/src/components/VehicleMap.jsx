@@ -50,7 +50,7 @@ const VehicleMap = ({source, destination}) => {
     <MapContainer
       center={midpoint}
       zoom={zoom}
-      style={{ height: "100%", width: "100%" }}
+      style={{ height: "80vh", width: "100%" }}
       whenReady={(mapInstance) => setMap(mapInstance.target)}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />

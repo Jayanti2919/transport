@@ -41,7 +41,7 @@ const BookATrip = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 min-h-screen">
       <div className="grid grid-cols-2">
         <div className="flex flex-col gap-2 items-center">
           <div className="flex gap-2">
@@ -156,10 +156,7 @@ const BookATrip = () => {
 
       {/* Display Leaflet Map with markers */}
       {sourceCoordinates && destinationCoordinates && (
-        <VehicleMap
-          source={sourceCoordinates}
-          destination={destinationCoordinates}
-        />
+        <VehicleMap source={sourceCoordinates} destination={destinationCoordinates} />
       )}
     </div>
   );
