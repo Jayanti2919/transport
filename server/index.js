@@ -3,6 +3,11 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const proxyServer = require('./proxy/proxy_server');
+const Trip = require('./models/trip.model');
+const Customer = require('./models/customer.model');
+const Driver = require('./models/driver.model');
+const Admin = require('./models/admin.model');
+const connect = require('./utils/mongoConnection');
 
 const app = express();
 app.use(cors());
@@ -34,6 +39,9 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start the server
+
 const PORT = 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  connect();
+});

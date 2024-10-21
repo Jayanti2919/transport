@@ -52,6 +52,7 @@ const BookATrip = () => {
                 setSource(e.target.value);
                 setSearchingSource(true);
               }}
+              onClick={(e)=>{setSearchingSource(true);}}
               placeholder="Enter source address"
               className="py-2 px-4 active:border-none text-accent rounded-full focus:outline-none"
             />
