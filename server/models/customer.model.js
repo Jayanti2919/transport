@@ -6,6 +6,7 @@ const CustomerSchema = new mongoose.Schema({
   country_code: { type: String, required: true },
   phone: { type: Number, required: true },
   email: { type: String, required: true },
+  country: {type: String, required: true},
   otp_status: { 
     type: String, 
     enum: [null, 'sent', 'verified'], 

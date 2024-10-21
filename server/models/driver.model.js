@@ -7,6 +7,7 @@ const DriverSchema = new mongoose.Schema({
   email: { type: String, required: true },
   phone: { type: Number, required: true },
   country_code: { type: String, required: true },
+  country: {type: String, required: true},
   location: {
     lat: { type: Number, required: true },
     lng: { type: Number, required: true }
