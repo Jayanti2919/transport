@@ -8,12 +8,14 @@ const Customer = require('./models/customer.model');
 const Driver = require('./models/driver.model');
 const Admin = require('./models/admin.model');
 const connect = require('./utils/mongoConnection');
+const driverAuthAPI = require('./auth/driverAuth');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use('/proxy', proxyServer);
+app.use('/driver', driverAuthAPI);
 
 // HTTP server and Socket.io server
 const server = http.createServer(app);
@@ -30,7 +32,6 @@ io.on('connection', (socket) => {
 
   socket.on('driverLocationUpdate', (locationData) => {
     console.log('Driver location received:', locationData);
-    // Broadcast the location to all connected customers
     io.emit('broadcastDriverLocation', locationData);
   });
 

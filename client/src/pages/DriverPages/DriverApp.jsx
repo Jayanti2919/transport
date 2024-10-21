@@ -1,32 +1,59 @@
-import React, { useEffect } from 'react';
-import io from 'socket.io-client';
+import React, { useEffect, useState } from "react";
+import io from "socket.io-client";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 // Connect to the backend server
-const socket = io('http://localhost:5000'); // Replace with your backend URL
+const socket = io("http://localhost:5000");
 
 const DriverApp = () => {
+  const [online, setOnline] = useState(false);
+  const [vehicleId, setVehicleId] = useState("");
+  const nav = useNavigate();
+  const token = window.localStorage.getItem("accessToken");
   useEffect(() => {
-    // Function to get driver's location and send it to the server
+    if (!token) {
+      nav("/driverLogin");
+    }
+    const validateToken = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/driver/validateToken", {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        if (response.status !== 200) {
+          console.log(response.data);
+          nav("/driverLogin");
+        } else {
+          setVehicleId(response.data.user.vehicle_id);
+        }
+      } catch (error) {
+        console.error("Error validating token:", error.response || error.message);
+        nav("/driverLogin");
+      }
+    };    
+    validateToken();
+  }, [token, nav]);
+
+  useEffect(() => {
+    if (!online) return;
     const sendDriverLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
           const locationData = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-            driverId: '12345',  // Replace with actual driver ID or trip ID
+            driverId: "12345",
           };
-          // Emit the driver's location to the server
-          socket.emit('driverLocationUpdate', locationData);
+          socket.emit("driverLocationUpdate", locationData);
         });
       } else {
-        console.log('Geolocation is not supported by this browser.');
+        console.log("Geolocation is not supported by this browser.");
       }
     };
 
-    // Send location every 10 seconds
     const locationInterval = setInterval(sendDriverLocation, 10000);
-
-    // Cleanup interval on component unmount
     return () => {
       clearInterval(locationInterval);
     };
@@ -34,7 +61,15 @@ const DriverApp = () => {
 
   return (
     <div>
-      <h1>Driver's Location is being shared...</h1>
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          setOnline(true);
+        }}
+      >
+        Go Online
+      </button>
+      <span>{vehicleId}</span>
     </div>
   );
 };
