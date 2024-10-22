@@ -3,31 +3,28 @@ import VideoBg from '../../components/VideoBg';
 import LoginBanner from '../../components/LoginBanner';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const UserLogin = () => {
-  const [buttonText, setButtonText] = useState('send otp');
-  const [status, setStatus] = useState('email');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const nav = useNavigate();
 
-  const handleEnterEmail = () => {
-    setButtonText('verify otp');
-    setStatus('otp');
-    console.log(status);
-  }
-
-  const handleEnterOtp = () => {
-    setButtonText('send otp');
-    setStatus('email');
-    console.log(status);
-    nav('/user/dashboard');
-  }
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (status === 'email') {
-      handleEnterEmail();
-    } else {
-      handleEnterOtp();
+    try{
+      const response = await axios.post('http://localhost:5000/user/generateToken', {
+        email,
+        password
+      });
+      if(response.status !== 200) {
+        alert(response.data.message);
+      } else {
+        window.localStorage.setItem("userAccessToken", response.data.token);
+        nav('/user/Dashboard');
+      }
+    }catch(err){
+      console.log(err);
     }
   }
 
@@ -39,11 +36,11 @@ const UserLogin = () => {
       <div className='flex flex-col'>
         <div className='flex justify-center items-center h-screen'>
           <div className='flex flex-col w-96'>
-            <LoginBanner loginType="customer"/>
+            <LoginBanner loginType="user"/>
             <form className='flex flex-col gap-4 mt-4'>
-              <input type='text' placeholder='username' className='py-2 px-4 active:border-none text-accent rounded-full focus:outline-none' />
-              <input type='password' placeholder='otp' className='py-2 px-4 active:border-none text-accent rounded-full focus:outline-none' />
-              <button className='bg-secondary shadow-lg text-white p-2 rounded-full' type='submit' onClick={handleSubmit}>{buttonText}</button>
+              <input type='email' placeholder='email' className='py-2 px-4 active:border-none text-accent rounded-full focus:outline-none' onChange={(e)=>{setEmail(e.target.value)}}/>
+              <input type='password' placeholder='password' className='py-2 px-4 active:border-none text-accent rounded-full focus:outline-none' onChange={(e)=>{setPassword(e.target.value)}}/>
+              <button className='bg-secondary shadow-lg text-white p-2 rounded-full' type='submit' onClick={handleSubmit}>Submit</button>
             </form>
           </div>
         </div>
@@ -52,4 +49,4 @@ const UserLogin = () => {
   )
 }
 
-export default UserLogin
+export default UserLogin;

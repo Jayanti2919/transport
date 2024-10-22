@@ -20,7 +20,7 @@ const DriverLogin = () => {
       if(response.status !== 200) {
         alert(response.data.message);
       } else {
-        window.localStorage.setItem("accessToken", response.data.token);
+        window.localStorage.setItem("driverAccessToken", response.data.token);
         nav('/driver/Dashboard');
       }
     }catch(err){

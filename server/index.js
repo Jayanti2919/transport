@@ -11,6 +11,8 @@ const connect = require("./utils/mongoConnection");
 const driverAuthRouter = require("./auth/driverAuth");
 const driverRouter = require("./api/driver");
 const redis = require("redis");
+const userAuthRouter = require('./auth/customerAuth');
+const userRouter = require('./api/user');
 
 const app = express();
 app.use(cors());
@@ -18,10 +20,13 @@ app.use(express.json());
 
 app.use("/proxy", proxyServer);
 app.use("/driver", driverAuthRouter);
-app.use("/api", driverRouter);
+app.use("/user", userAuthRouter);
+app.use("/driver/api", driverRouter);
+app.use("/user/api", userRouter);
 
 // HTTP server and Socket.io server
 const server = http.createServer(app);
+module.exports = { server };
 const io = socketIo(server, {
   cors: {
     origin: "*",
@@ -63,6 +68,8 @@ driverNamespace.on("connection", (socket) => {
         const updatedDriver = await Driver.findOneAndUpdate(filter, update);
         console.log("Updated socket:", updatedDriver.socketId);
       }
+
+      redisClient.sAdd(AVAILABLE_DRIVERS_KEY, socket.id);
 
       // Store driver location in Redis
       await redisClient.hSet(`driverLocation:${socket.id}`, {
@@ -126,7 +133,7 @@ driverNamespace.on("connection", (socket) => {
   socket.on("disconnect", async () => {
     console.log("Driver disconnected:", socket.id);
     const filter = { socketId: socket.id };
-    const currDriver = await Driver.findOne(filter, update);
+    const currDriver = await Driver.findOne(filter);
     if (currDriver) {
       const update = {
         status: "offline",
@@ -150,7 +157,7 @@ customerNamespace.on("connection", (socket) => {
   console.log("Customer connected:", socket.id);
 
   // Customer requests driver locations
-  socket.on("requestDriverLocation", () => {
+  socket.on("requestDriverLocation", (driverId) => {
     console.log("Customer requested driver location");
 
     // Fetch and broadcast driver locations from Redis
@@ -161,6 +168,7 @@ customerNamespace.on("connection", (socket) => {
       }
       for (let key of keys) {
         const locationData = await redisClient.hGetAll(key);
+
         socket.emit("broadcastDriverLocation", locationData);
       }
     });

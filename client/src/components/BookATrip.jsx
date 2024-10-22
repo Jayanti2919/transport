@@ -3,6 +3,7 @@ import axios from "axios";
 import VehicleMap from "./VehicleMap";
 
 const BookATrip = () => {
+  const [user, setUser] = useState(null);
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
   const [error, setError] = useState(null);
@@ -10,8 +11,8 @@ const BookATrip = () => {
   const [destinationCoordinates, setDestinationCoordinates] = useState(null);
   const [results, setResults] = useState([]);
   const [searchingSource, setSearchingSource] = useState(false);
-  const [vehicleType, setVehicleType] = useState("bike"); // State for vehicle type
-  const [estimatedCost, setEstimatedCost] = useState("--"); // State for estimated cost
+  const [vehicleType, setVehicleType] = useState("bike");
+  const [estimatedCost, setEstimatedCost] = useState("--");
 
   const fetchGeocode = async (address) => {
     const response = await axios.post("http://localhost:5000/proxy/geocode", {
@@ -28,16 +29,17 @@ const BookATrip = () => {
       const tripRequest = {
         source: sourceCoordinates,
         destination: destinationCoordinates,
-        vehicleType,
+        vehicleType: vehicleType,
+        estimatedAmount: estimatedCost,
       };
 
       // Send trip request (currently commented out)
-      // const response = await axios.post("http://localhost:5000/api/request-trip", tripRequest);
-      // if (response.data.success) {
-      //   alert('Request sent to drivers');
-      // } else {
-      //   throw new Error('Failed to request trip');
-      // }
+      const response = await axios.post("http://localhost:5000/user/api/tripRequest", tripRequest);
+      if (response.data.success) {
+        alert('Request sent to drivers');
+      } else {
+        throw new Error('Failed to request trip');
+      }
     } catch (err) {
       setError(err.message);
     }

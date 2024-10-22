@@ -13,7 +13,7 @@ const DriverApp = () => {
   const [vehicleId, setVehicleId] = useState("");
   const [driverId, setDriverId] = useState("");
   const nav = useNavigate();
-  const token = window.localStorage.getItem("accessToken");
+  const token = window.localStorage.getItem("driverAccessToken");
   const [driverData, setDriverData] = useState(null);
   const [currLocation, setCurrentLocation] = useState(null);
   const [socketId, setSocketId] = useState("");
@@ -88,7 +88,6 @@ const DriverApp = () => {
           }
         );
         if (response.status !== 200) {
-          // console.log(response.data);
           nav("/driverLogin");
         } else {
           setVehicleId(response.data.user.vehicle_id);
@@ -111,7 +110,7 @@ const DriverApp = () => {
     const getDriverData = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/fetchDriverDetails",
+          "http://localhost:5000/driver/api/fetchDriverDetails",
           {
             headers: {
               "Content-Type": "application/json",
