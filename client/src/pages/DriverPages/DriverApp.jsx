@@ -30,25 +30,26 @@ const DriverApp = () => {
   }, []);
 
   const handleGoOnline = () => {
-    if (online) {
-      if (!navigator.geolocation) {
-        console.log("Geolocation is not supported by this browser.");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition((position) => {
-        const locationData = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          driverId: driverId,
-        };
-
-        setCurrentLocation(locationData);
-        socket.emit("driverOnline", locationData);
-
-        setGoneOnline(true);
-      });
+    console.log("button clicked");
+    console.log(online);
+    if (!navigator.geolocation) {
+      console.log("Geolocation is not supported by this browser.");
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const locationData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        driverId: driverId,
+      };
+
+      setCurrentLocation(locationData);
+      socket.emit("driverOnline", locationData);
+
+      setGoneOnline(true);
+      setOnline(true);
+    });
   };
 
   useEffect(() => {
@@ -137,7 +138,7 @@ const DriverApp = () => {
     return () => {
       clearInterval(locationInterval);
     };
-  }, [online, vehicleId]);
+  }, [online, vehicleId, goneOnline]);
 
   useEffect(() => {
     const updateButton = () => {
@@ -156,8 +157,7 @@ const DriverApp = () => {
         <button
           onClick={(e) => {
             e.preventDefault();
-            setOnline(!online);
-            handleGoOnline();
+            if (!online) handleGoOnline();
           }}
           className="bg-accent2 py-2 w-1/2 rounded-full hover:bg-secondary"
         >

@@ -52,19 +52,17 @@ io.on("connection", (socket) => {
         console.error("Error adding driver to Redis:", err);
       }
     });
+    console.log(location);
     redisClient.hSet(
       `driverLocation:${socket.id}`,
-      "lat",
-      location.lat,
-      "lng",
-      location.lng,
+      {"driverId": location.driverId,
+      "lat": location.lat,
+      "lng": location.lng,},
       (err, reply) => {
         if (err) {
           console.error("Error storing driver location in Redis:", err);
         } else {
-          console.log(
-            `Stored location for driver ${socket.id}: ${location.lat}, ${location.lng}`
-          );
+          console.log(reply);
         }
       }
     );
@@ -72,19 +70,18 @@ io.on("connection", (socket) => {
 
   socket.on("driverLocationUpdate", (locationData) => {
     console.log("Driver location received:", locationData);
-    const driverKey = `driverLocation:${locationData.driverId || socket.id}`;
+    const driverKey = `driverLocation:${socket.id}`;
     redisClient.hSet(
       driverKey,
-      "lat",
-      locationData.lat,
-      "lng",
-      locationData.lng,
+      {"driverId": locationData.driverId,
+      "lat": locationData.lat,
+      "lng": locationData.lng,},
       (err, reply) => {
         if (err) {
           console.error("Error updating driver location in Redis:", err);
         } else {
           console.log(
-            `Driver location updated in Redis for ${driverKey}: ${locationData.lat}, ${locationData.lng}`
+            `Driver location updated in Redis for ${driverKey}: ${locationData.lat}, ${locationData.lng}, ${reply}`
           );
         }
       }
@@ -98,7 +95,9 @@ io.on("connection", (socket) => {
 });
 
 const PORT = 5000;
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   connect();
+  await redisClient.connect();
+  console.log("Connected to Redis");
 });
