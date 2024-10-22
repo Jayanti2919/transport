@@ -26,7 +26,7 @@ const DriverSchema = new mongoose.Schema({
   trip_history: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Trip' }],
   username: { type: String, required: true },
   password: { type: String, required: true },
-  socketId: { type: String, default: null },
+  socketId: { type: String, default: "" },
 });
 
 module.exports = mongoose.model('Driver', DriverSchema);

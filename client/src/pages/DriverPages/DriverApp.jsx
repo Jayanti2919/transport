@@ -5,7 +5,7 @@ import axios from "axios";
 import DriverMap from "../../components/DriverMap";
 
 // Connect to the backend server
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5000/drivers");
 
 const DriverApp = () => {
   const [online, setOnline] = useState(false);
@@ -49,6 +49,27 @@ const DriverApp = () => {
 
       setGoneOnline(true);
       setOnline(true);
+    });
+  };
+
+  const handleGoOffline = () => {
+    if (!navigator.geolocation) {
+      console.log("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      const locationData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        driverId: driverId,
+      };
+
+      setCurrentLocation(locationData);
+      socket.emit("driverOffline", locationData);
+
+      setGoneOnline(false);
+      setOnline(false);
     });
   };
 
@@ -158,6 +179,7 @@ const DriverApp = () => {
           onClick={(e) => {
             e.preventDefault();
             if (!online) handleGoOnline();
+            else handleGoOffline();
           }}
           className="bg-accent2 py-2 w-1/2 rounded-full hover:bg-secondary"
         >

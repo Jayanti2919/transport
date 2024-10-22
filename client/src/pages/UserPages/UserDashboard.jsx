@@ -4,7 +4,9 @@ import { userDashboardOptions } from "../../constants";
 import UserCurrentTrip from "../../components/UserCurrentTrip";
 import BookATrip from "../../components/BookATrip";
 import TripHistory from "../../components/TripHistory";
+import io from "socket.io-client";
 
+const socket = io("http://localhost:5000/customers");
 const UserDashboard = () => {
   const [name, setName] = useState("User");
   const [activeOption, setActiveOption] = useState(0);

@@ -41,41 +41,52 @@ redisClient.on("error", (err) => {
 
 const AVAILABLE_DRIVERS_KEY = "availableDrivers";
 
-// Socket connection
-io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+// Create a namespace for drivers
+const driverNamespace = io.of("/drivers");
+const customerNamespace = io.of("/customers");
 
-  socket.on("driverOnline", (location) => {
+// Handle multiple driver connections
+driverNamespace.on("connection", (socket) => {
+  console.log("Driver connected:", socket.id);
+
+  // Handle driver going online and sharing location
+  socket.on("driverOnline", async (location) => {
     console.log("Driver online, location:", location);
-    redisClient.sAdd(AVAILABLE_DRIVERS_KEY, socket.id, (err, reply) => {
-      if (err) {
-        console.error("Error adding driver to Redis:", err);
+    try {
+      if (location.driverId) {
+        const filter = { _id: location.driverId };
+        const update = {
+          socketId: socket.id,
+          status: "available",
+          location: { lat: location.lat, lng: location.lng },
+        };
+        const updatedDriver = await Driver.findOneAndUpdate(filter, update);
+        console.log("Updated socket:", updatedDriver.socketId);
       }
-    });
-    console.log(location);
-    redisClient.hSet(
-      `driverLocation:${socket.id}`,
-      {"driverId": location.driverId,
-      "lat": location.lat,
-      "lng": location.lng,},
-      (err, reply) => {
-        if (err) {
-          console.error("Error storing driver location in Redis:", err);
-        } else {
-          console.log(reply);
-        }
-      }
-    );
+
+      // Store driver location in Redis
+      await redisClient.hSet(`driverLocation:${socket.id}`, {
+        driverId: location.driverId,
+        lat: location.lat,
+        lng: location.lng,
+      });
+      console.log("Driver location stored successfully:", location);
+    } catch (err) {
+      console.error("Error processing driverOnline event:", err);
+    }
   });
 
+  // Handle driver location updates
   socket.on("driverLocationUpdate", (locationData) => {
-    console.log("Driver location received:", locationData);
+    console.log("Driver location update received:", locationData);
     const driverKey = `driverLocation:${socket.id}`;
     redisClient.hSet(
       driverKey,
-      {"driverId": locationData.driverId,
-      "lat": locationData.lat,
-      "lng": locationData.lng,},
+      {
+        driverId: locationData.driverId,
+        lat: locationData.lat,
+        lng: locationData.lng,
+      },
       (err, reply) => {
         if (err) {
           console.error("Error updating driver location in Redis:", err);
@@ -86,11 +97,78 @@ io.on("connection", (socket) => {
         }
       }
     );
-    io.emit("broadcastDriverLocation", locationData);
   });
 
+  // Handle driver going offline
+  socket.on("driverOffline", async (location) => {
+    if (redisClient.EXISTS(socket.id)) {
+      redisClient.sRem(AVAILABLE_DRIVERS_KEY, socket.id);
+    }
+    const filter = { _id: location.driverId };
+    const update = {
+      status: "offline",
+      socketId: "",
+      location: { lat: location.lat, lng: location.lng },
+    };
+    const updatedDriver = await Driver.findOneAndUpdate(filter, update);
+    const driverKey = `driverLocation:${socket.id}`;
+    redisClient.hDel(driverKey, ["driverId", "lat", "lng"], (err, reply) => {
+      if (err) {
+        console.error("Error deleting driver location from Redis:", err);
+      } else {
+        console.log("Driver location deleted from Redis:", reply);
+      }
+    });
+    console.log("Updated socket:", updatedDriver.socketId);
+  });
+
+  // Handle driver disconnection
+  socket.on("disconnect", async () => {
+    console.log("Driver disconnected:", socket.id);
+    const filter = { socketId: socket.id };
+    const currDriver = await Driver.findOne(filter, update);
+    if (currDriver) {
+      const update = {
+        status: "offline",
+        socketId: "",
+      };
+      const updatedDriver = await Driver.findOneAndUpdate(filter, update);
+      const driverKey = `driverLocation:${socket.id}`;
+      redisClient.hDel(driverKey, ["driverId", "lat", "lng"], (err, reply) => {
+        if (err) {
+          console.error("Error deleting driver location from Redis:", err);
+        } else {
+          console.log("Driver location deleted from Redis:", reply);
+        }
+      });
+    }
+  });
+});
+
+// Handle multiple customer connections
+customerNamespace.on("connection", (socket) => {
+  console.log("Customer connected:", socket.id);
+
+  // Customer requests driver locations
+  socket.on("requestDriverLocation", () => {
+    console.log("Customer requested driver location");
+
+    // Fetch and broadcast driver locations from Redis
+    redisClient.keys("driverLocation:*", async (err, keys) => {
+      if (err) {
+        console.error("Error fetching driver locations from Redis:", err);
+        return;
+      }
+      for (let key of keys) {
+        const locationData = await redisClient.hGetAll(key);
+        socket.emit("broadcastDriverLocation", locationData);
+      }
+    });
+  });
+
+  // Handle customer disconnection
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    console.log("Customer disconnected:", socket.id);
   });
 });
 
