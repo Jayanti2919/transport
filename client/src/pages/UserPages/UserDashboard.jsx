@@ -124,7 +124,7 @@ const UserDashboard = () => {
         </div>
       </div>
       <div className={`${activeOption === 1 ? "block" : "hidden"}`}>
-        <BookATrip />
+        <BookATrip user={user}/>
       </div>
       <div className={`${activeOption === 2 ? "block" : "hidden"}`}>
         <TripHistory />

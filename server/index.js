@@ -13,9 +13,12 @@ const driverRouter = require("./api/driver");
 const redis = require("redis");
 const userAuthRouter = require('./auth/customerAuth');
 const userRouter = require('./api/user');
+const redisClient = require('./utils/redisConnection');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "*"
+}));
 app.use(express.json());
 
 app.use("/proxy", proxyServer);
@@ -26,7 +29,6 @@ app.use("/user/api", userRouter);
 
 // HTTP server and Socket.io server
 const server = http.createServer(app);
-module.exports = { server };
 const io = socketIo(server, {
   cors: {
     origin: "*",
@@ -34,15 +36,6 @@ const io = socketIo(server, {
   },
 });
 
-const redisClient = redis.createClient();
-
-redisClient.on("connect", () => {
-  console.log("Connected to Redis");
-});
-
-redisClient.on("error", (err) => {
-  console.error("Redis error:", err);
-});
 
 const AVAILABLE_DRIVERS_KEY = "availableDrivers";
 
@@ -187,3 +180,5 @@ server.listen(PORT, async () => {
   await redisClient.connect();
   console.log("Connected to Redis");
 });
+
+module.exports = { server };

@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import VehicleMap from "./VehicleMap";
 
-const BookATrip = () => {
-  const [user, setUser] = useState(null);
+const BookATrip = ({user}) => {
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
   const [error, setError] = useState(null);
@@ -31,12 +30,13 @@ const BookATrip = () => {
         destination: destinationCoordinates,
         vehicleType: vehicleType,
         estimatedAmount: estimatedCost,
+        country: user.country,
       };
 
-      // Send trip request (currently commented out)
-      const response = await axios.post("http://localhost:5000/user/api/tripRequest", tripRequest);
-      if (response.data.success) {
-        alert('Request sent to drivers');
+      const response = await axios.post("http://localhost:5000/user/api/requestTrip", tripRequest);
+      console.log(response.data)
+      if (response.data) {
+        alert(response.data.message);
       } else {
         throw new Error('Failed to request trip');
       }

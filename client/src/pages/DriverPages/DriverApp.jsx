@@ -18,6 +18,18 @@ const DriverApp = () => {
   const [currLocation, setCurrentLocation] = useState(null);
   const [socketId, setSocketId] = useState("");
   const [goneOnline, setGoneOnline] = useState(false);
+  const [tripRequest, setTripRequest] = useState(null);
+
+  useEffect(() => {
+    socket.on("tripRequest", (request) => {
+      console.log("Trip request received:", request);
+      setTripRequest(request);
+    });
+
+    return () => {
+      socket.off("tripRequest");
+    };
+  }, []);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -206,6 +218,15 @@ const DriverApp = () => {
           {online && (
             <div className="bg-secondary shadow-md rounded-md px-2 py-2">
               <span>Your Requests</span>
+              {tripRequest && (
+                <div className="bg-white shadow-md rounded-md p-2 mt-2">
+                  <h3>New Trip Request</h3>
+                  <p>Customer ID: {tripRequest.customerId}</p>
+                  <p>Source: {JSON.stringify(tripRequest.source)}</p>
+                  <p>Destination: {JSON.stringify(tripRequest.destination)}</p>
+                  <p>Estimated Amount: {tripRequest.amount}</p>
+                </div>
+              )}
             </div>
           )}
         </div>
