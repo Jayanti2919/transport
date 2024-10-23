@@ -39,6 +39,7 @@ router.route("/acceptTrip").post(async (req, res) => {
 
   var trip = await Trip.create({
     vehicleId: driver.vehicleId,
+    driverId: driver._id,
     customerId: body.customerId,
     status: "in-transit",
     source: body.source,

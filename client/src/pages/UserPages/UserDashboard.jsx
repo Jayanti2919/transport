@@ -15,14 +15,36 @@ const UserDashboard = () => {
   const [user, setUser] = useState(null);
   const [activeOption, setActiveOption] = useState(0);
   const [currentTrip, setCurrentTrip] = useState(null);
+  const [driverLocation, setDriverLocation] = useState(null);
+  const [driverDetails, setDriverDetails] = useState(null);
   const token = window.localStorage.getItem("userAccessToken");
   const nav = useNavigate();
   const socketId = socket.id;
 
   useEffect(() => {
-    if(currentTrip) return;
+    if (!currentTrip) return;
+
+    const fetchDriverLocation = () => {
+      socket.emit("requestDriverLocation", currentTrip.driverId);
+    };
+
+    socket.on("broadcastDriverLocation", (locationData) => {
+      console.log("Driver location received:", locationData);
+      setDriverLocation(locationData);
+    });
+
+    const locationInterval = setInterval(fetchDriverLocation, 10000);
+
+    return () => {
+      clearInterval(locationInterval);
+      socket.off("broadcastDriverLocation");
+    };
+  }, [currentTrip]);
+
+  useEffect(() => {
+    if (currentTrip) return;
     socket.on("tripAccepted", (trip) => {
-      console.log("Trip request received:", trip);
+      console.log("Trip accepted:", trip);
       setCurrentTrip(trip);
     });
   }, []);
@@ -78,6 +100,23 @@ const UserDashboard = () => {
           setUser(res.data.user);
           if (res.data.lastTrip !== null) {
             setCurrentTrip(res.data.lastTrip);
+            try {
+              const response = await axios.get(
+                "http://localhost:5000/driver/api/fetchDriverDetails",
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    driver_id: res.data.lastTrip.driverId,
+                  },
+                }
+              );
+              if(response.status === 200) {
+                console.log(response.data);
+                setDriverDetails(response.data.driver);
+              }
+            } catch (err) {
+              console.log("Error fetching driver data:", err);
+            }
           }
         } else {
           console.log(res.data);
@@ -130,11 +169,19 @@ const UserDashboard = () => {
           </button>
         </div>
         <div className={`${currentTrip ? "block" : "hidden"}`}>
-          <UserCurrentTrip currentTrip={currentTrip} />
+          <UserCurrentTrip
+            driverLocation={driverLocation}
+            currentTrip={currentTrip}
+            driverDetails={driverDetails}
+          />
         </div>
       </div>
       <div className={`${activeOption === 1 ? "block" : "hidden"}`}>
-        <BookATrip user={user} socketId={socketId} />
+        {currentTrip ? (
+          <div>You need to wait for your current trip to end.</div>
+        ) : (
+          <BookATrip user={user} socketId={socketId} />
+        )}
       </div>
       <div className={`${activeOption === 2 ? "block" : "hidden"}`}>
         <TripHistory />

@@ -9,14 +9,16 @@ import { driverPin } from "../assets";
 
 const VehicleMap = ({ source, destination, driverLocation }) => {
   const [map, setMap] = useState(null);
+  console.log(source.lat, source.lng, destination.lat, destination.lng, driverLocation.lat, driverLocation.lng);
+  driverLocation = { lat: parseFloat(driverLocation.lat), lng: parseFloat(driverLocation.lng) };
   const distance = Math.sqrt(
     Math.pow(destination.lat - source.lat, 2) +
       Math.pow(destination.lng - source.lng, 2)
   );
   const zoom = Math.floor(distance * 180);
   const midpoint = [
-    (source.lat + destination.lat) / 2,
-    (source.lng + destination.lng) / 2,
+    (source.lat + destination.lat + driverLocation.lat) / 3,
+    (source.lng + destination.lng + driverLocation.lng) / 3,
   ];
 
   const createDestionationIcon = () => {
@@ -61,7 +63,7 @@ const VehicleMap = ({ source, destination, driverLocation }) => {
 
   return (
     <MapContainer
-      center={midpoint}
+      center={[source.lat, source.lng]}
       zoom={zoom}
       style={{ height: "80vh", width: "100%" }}
       whenReady={(mapInstance) => setMap(mapInstance.target)}

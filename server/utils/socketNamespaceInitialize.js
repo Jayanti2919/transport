@@ -22,7 +22,9 @@ function initializeNamespaces(io) {
 
   eventEmitter.on("tripAccepted", (tripDetails) => {
     console.log("Trip accepted by driver:", tripDetails);
-    customerNamespace.to(tripDetails.customerId).emit("tripAccepted", tripDetails);
+    customerNamespace
+      .to(tripDetails.customerId)
+      .emit("tripAccepted", tripDetails);
   });
 
   // Handle driver connections
@@ -131,20 +133,18 @@ function initializeNamespaces(io) {
   customerNamespace.on("connection", (socket) => {
     console.log("Customer connected:", socket.id);
 
-    socket.on("requestDriverLocation", (driverId) => {
-      console.log("Customer requested driver location");
-
-      redisClient.keys("driverLocation:*", async (err, keys) => {
-        if (err) {
-          console.error("Error fetching driver locations from Redis:", err);
-          return;
-        }
-        for (let key of keys) {
-          const locationData = await redisClient.hGetAll(key);
-
-          socket.emit("broadcastDriverLocation", locationData);
-        }
-      });
+    socket.on("requestDriverLocation", async (driverId) => {
+      console.log("Received request for driver location for driver:", driverId);
+      const locationData = await redisClient.hGetAll(
+        `driverLocation:${driverId}`
+      );
+      if (locationData) {
+        customerNamespace
+          .to(socket.id)
+          .emit("broadcastDriverLocation", locationData);
+      } else {
+        return;
+      }
     });
 
     // Handle customer disconnection

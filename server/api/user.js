@@ -18,14 +18,17 @@ router.route("/fetchUserDetails").get(async (req, res) => {
   }
   if (user.trip_history.length > 0) {
     var lastTrip = user.trip_history[user.trip_history.length - 1];
-    var trip = TripDetails.findOne({ _id: lastTrip._id });
+    var trip = await TripDetails.findOne({ _id: lastTrip._id });
     if (!trip) {
       res.status(200).json({ user: user, lastTrip: null });
+      return;
     } else {
       if (trip.status === "in-transit") {
         res.status(200).json({ user: user, lastTrip: trip });
+        return;
       } else {
         res.status(200).json({ user: user, lastTrip: null });
+        return;
       }
     }
   }

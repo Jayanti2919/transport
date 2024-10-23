@@ -46,7 +46,7 @@ const BookATrip = ({user, socketId}) => {
         throw new Error('Failed to request trip');
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.response.data.message);
     }
   };
 
