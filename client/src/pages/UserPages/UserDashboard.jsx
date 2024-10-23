@@ -19,7 +19,24 @@ const UserDashboard = () => {
   const [driverDetails, setDriverDetails] = useState(null);
   const token = window.localStorage.getItem("userAccessToken");
   const nav = useNavigate();
-  const socketId = socket.id;
+  const [socketId, setSocketId] = useState(null);
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Socket connected, ID:", socket.id);
+      setSocketId(socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+      setSocketId(null);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, []);
 
   useEffect(() => {
     if(!currentTrip) return;

@@ -22,16 +22,14 @@ function initializeNamespaces(io) {
   });
 
   eventEmitter.on("tripAccepted", (tripDetails, socketId) => {
+    console.log("Socket:", socketId);
     console.log("Trip accepted by driver:", tripDetails);
-    customerNamespace
-      .to(socketId)
-      .emit("tripAccepted", tripDetails);
+    customerNamespace.to(socketId).emit("tripAccepted", tripDetails);
   });
 
   eventEmitter.on("tripEnded", (tripDetails, socketId) => {
-    customerNamespace
-      .to(socketId)
-      .emit("tripEnded", tripDetails);
+    console.log("Socket:", socketId);
+    customerNamespace.to(socketId).emit("tripEnded", tripDetails);
   });
 
   // Handle driver connections

@@ -52,7 +52,7 @@ router.route("/endTrip").post(async (req, res) => {
   redisClient.sAdd("availableDrivers", driver_id);
   driver.save();
 
-  eventEmitter.emit("tripEnded", trip, customer.socket);
+  eventEmitter.emit("tripEnded", trip, trip.customer_socket);
   res.status(200).json({ message: "Trip ended successfully" });
 });
 
@@ -83,6 +83,7 @@ router.route("/acceptTrip").post(async (req, res) => {
     destination_area: body.formattedDestination,
     start_time: new Date(),
     price: body.amount,
+    customer_socket: body.socketId,
   });
   driver.current_trip_id = trip._id;
   driver.trip_history.push(trip._id);
@@ -94,7 +95,7 @@ router.route("/acceptTrip").post(async (req, res) => {
 
   redisClient.sRem("availableDrivers", driver_id);
 
-  eventEmitter.emit("tripAccepted", trip, customer.socket);
+  eventEmitter.emit("tripAccepted", trip, body.socketId);
   res.status(200).json({
     message: "Trip accepted",
     trip,

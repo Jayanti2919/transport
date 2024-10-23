@@ -62,6 +62,7 @@ const DriverApp = () => {
       const token = window.localStorage.getItem("driverAccessToken");
 
       const tripDetails = {
+        socketId: tripRequest.customerSocket,
         customerId: tripRequest.customerId,
         source: tripRequest.source,
         destination: tripRequest.destination,

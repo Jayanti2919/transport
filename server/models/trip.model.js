@@ -25,6 +25,7 @@ const TripSchema = new mongoose.Schema({
   start_time: { type: Date },
   end_time: { type: Date },
   price: { type: Number },
+  customer_socket: {type: String},
 });
 
 module.exports = mongoose.model('Trip', TripSchema);
