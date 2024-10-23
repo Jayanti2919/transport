@@ -5,8 +5,9 @@ const User = require("../models/customer.model");
 const TripDetails = require("../models/trip.model");
 const { server } = require("../index");
 const redisClient = require("../utils/redisConnection");
-
+const { eventEmitter } = require("../utils/socketNamespaceInitialize");
 const io = require("socket.io")(server);
+const driverNamespace = io.of("/drivers");
 
 const router = new express.Router();
 
@@ -91,14 +92,12 @@ router.route("/requestTrip").post(async (req, res) => {
   }
   if (possibleDrivers.length > 0) {
     // Emit trip request to all possible drivers
-    console.log(possibleDrivers);
-    possibleDrivers.forEach((socketId) => {
-      io.to(socketId).emit("tripRequest", {
-        customerId: body.customerId,
-        source: body.source,
-        destination: body.destination,
-        amount: body.estimatedAmount,
-      });
+    console.log("Sending call to evenEmitter");
+    eventEmitter.emit("sendTripRequest", possibleDrivers, {
+      customerId: body.customerId,
+      source: body.source,
+      destination: body.destination,
+      amount: body.estimatedAmount,
     });
     res.status(200).json({ message: "Trip request sent to drivers." });
   } else {

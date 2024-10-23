@@ -42,8 +42,6 @@ const DriverApp = () => {
   }, []);
 
   const handleGoOnline = () => {
-    console.log("button clicked");
-    console.log(online);
     if (!navigator.geolocation) {
       console.log("Geolocation is not supported by this browser.");
       return;
@@ -132,7 +130,6 @@ const DriverApp = () => {
         );
 
         if (res.status === 200) {
-          console.log(res.data);
           setDriverData(res.data.driver);
         } else {
           console.log(res.data);

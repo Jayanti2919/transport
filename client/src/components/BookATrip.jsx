@@ -31,6 +31,7 @@ const BookATrip = ({user}) => {
         vehicleType: vehicleType,
         estimatedAmount: estimatedCost,
         country: user.country,
+        customerId: user._id,
       };
 
       const response = await axios.post("http://localhost:5000/user/api/requestTrip", tripRequest);
