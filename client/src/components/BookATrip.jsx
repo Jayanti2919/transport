@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import VehicleMap from "./VehicleMap";
 
-const BookATrip = ({user}) => {
+const BookATrip = ({user, socketId}) => {
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
   const [error, setError] = useState(null);
@@ -13,6 +13,7 @@ const BookATrip = ({user}) => {
   const [vehicleType, setVehicleType] = useState("bike");
   const [estimatedCost, setEstimatedCost] = useState("--");
 
+
   const fetchGeocode = async (address) => {
     const response = await axios.post("http://localhost:5000/proxy/geocode", {
       address,
@@ -22,7 +23,7 @@ const BookATrip = ({user}) => {
 
   const handleRequestTrip = async () => {
     setError(null);
-
+    console.log(source);
     try {
       console.log("trip request called");
       const tripRequest = {
@@ -32,6 +33,9 @@ const BookATrip = ({user}) => {
         estimatedAmount: estimatedCost,
         country: user.country,
         customerId: user._id,
+        formattedSource: source,
+        formattedDestination: destination,
+        socketId: socketId,
       };
 
       const response = await axios.post("http://localhost:5000/user/api/requestTrip", tripRequest);

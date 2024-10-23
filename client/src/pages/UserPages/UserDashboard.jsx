@@ -17,6 +17,15 @@ const UserDashboard = () => {
   const [currentTrip, setCurrentTrip] = useState(null);
   const token = window.localStorage.getItem("userAccessToken");
   const nav = useNavigate();
+  const socketId = socket.id;
+
+  useEffect(() => {
+    if(currentTrip) return;
+    socket.on("tripAccepted", (trip) => {
+      console.log("Trip request received:", trip);
+      setCurrentTrip(trip);
+    });
+  }, []);
 
   useEffect(() => {
     if (!token) {
@@ -36,7 +45,7 @@ const UserDashboard = () => {
           nav("/userLogin");
         } else {
           setName(response.data.user.name);
-          setUserId(response.data.user.id)
+          setUserId(response.data.user.id);
         }
       } catch (error) {
         console.error(
@@ -67,7 +76,7 @@ const UserDashboard = () => {
         if (res.status === 200) {
           console.log(res.data);
           setUser(res.data.user);
-          if(res.data.lastTrip !== null) {
+          if (res.data.lastTrip !== null) {
             setCurrentTrip(res.data.lastTrip);
           }
         } else {
@@ -80,7 +89,6 @@ const UserDashboard = () => {
 
     getUserData();
   }, [userId]);
-
 
   return (
     <div className="px-5 py-10 flex flex-col gap-8">
@@ -108,7 +116,9 @@ const UserDashboard = () => {
             !currentTrip ? "block" : "hidden"
           } flex flex-col items-center justify-center gap-6 mt-10`}
         >
-          <span className="text-xl">Oops! Looks like you don't have any active trips</span>
+          <span className="text-xl">
+            Oops! Looks like you don't have any active trips
+          </span>
           <button
             className="bg-secondary hover:border hover:border-accent px-4 py-2 rounded-full text-accent"
             onClick={(e) => {
@@ -124,7 +134,7 @@ const UserDashboard = () => {
         </div>
       </div>
       <div className={`${activeOption === 1 ? "block" : "hidden"}`}>
-        <BookATrip user={user}/>
+        <BookATrip user={user} socketId={socketId} />
       </div>
       <div className={`${activeOption === 2 ? "block" : "hidden"}`}>
         <TripHistory />

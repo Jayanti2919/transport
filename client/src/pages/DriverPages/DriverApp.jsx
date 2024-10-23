@@ -19,8 +19,66 @@ const DriverApp = () => {
   const [socketId, setSocketId] = useState("");
   const [goneOnline, setGoneOnline] = useState(false);
   const [tripRequest, setTripRequest] = useState(null);
+  const [currTrip, setCurrTrip] = useState(null);
+
+  const handleEndTrip = async (e) => {
+    e.preventDefault();
+    console.log("Ending trip");
+  };
+
+  const handleAccept = async (e) => {
+    e.preventDefault();
+    console.log("Accepting trip request");
+
+    try {
+      const token = window.localStorage.getItem("driverAccessToken");
+
+      const tripDetails = {
+        customerId: tripRequest.customerId,
+        source: tripRequest.source,
+        destination: tripRequest.destination,
+        formattedSource: tripRequest.formattedSource,
+        formattedDestination: tripRequest.formattedDestination,
+        amount: tripRequest.amount,
+        driverId: driverId,
+      };
+
+      const response = await axios.post(
+        "http://localhost:5000/driver/api/acceptTrip",
+        tripDetails,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Trip accepted successfully");
+        console.log(response.data.trip);
+        setCurrTrip(response.data.trip);
+        setTripRequest(null);
+        console.log("Trip accepted successfully:", response.data);
+      } else {
+        console.error("Failed to accept the trip:", response.data.message);
+      }
+    } catch (error) {
+      console.error(
+        "Error accepting the trip:",
+        error.response || error.message
+      );
+    }
+  };
+
+  const handleDecline = (e) => {
+    e.preventDefault();
+    console.log("Rejecting trip request");
+    setTripRequest(null);
+  };
 
   useEffect(() => {
+    if (currTrip) return;
     socket.on("tripRequest", (request) => {
       console.log("Trip request received:", request);
       setTripRequest(request);
@@ -54,7 +112,10 @@ const DriverApp = () => {
         driverId: driverId,
       };
 
-      setCurrentLocation(locationData);
+      setCurrentLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      });
       socket.emit("driverOnline", locationData);
 
       setGoneOnline(true);
@@ -75,7 +136,10 @@ const DriverApp = () => {
         driverId: driverId,
       };
 
-      setCurrentLocation(locationData);
+      setCurrentLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      });
       socket.emit("driverOffline", locationData);
 
       setGoneOnline(false);
@@ -212,22 +276,67 @@ const DriverApp = () => {
           ) : (
             <div>Loading driver information...</div>
           )}
-          {online && (
+          {online && !currTrip && (
             <div className="bg-secondary shadow-md rounded-md px-2 py-2">
               <span>Your Requests</span>
               {tripRequest && (
-                <div className="bg-white shadow-md rounded-md p-2 mt-2">
-                  <h3>New Trip Request</h3>
-                  <p>Customer ID: {tripRequest.customerId}</p>
-                  <p>Source: {JSON.stringify(tripRequest.source)}</p>
-                  <p>Destination: {JSON.stringify(tripRequest.destination)}</p>
-                  <p>Estimated Amount: {tripRequest.amount}</p>
+                <div className="border-accent2 border-1 rounded-md p-2 mt-2 text-xs mb-2">
+                  <h3 className="text-sm mb-2">New Trip Request</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-accent">Source</span>
+                    <span>{tripRequest.formattedSource}</span>
+                    <span className="text-accent">Destination</span>
+                    <span>{tripRequest.formattedDestination}</span>
+                    <span className="text-accent">Amount</span>
+                    <span>Rs. {tripRequest.amount}</span>
+                    <button
+                      className="border-1 border-accent border px-2 py-2 hover:bg-accent2"
+                      onClick={handleAccept}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="border-1 border-accent border px-2 py-2 hover:bg-accent"
+                      onClick={handleDecline}
+                    >
+                      Decline
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           )}
+          {online && currTrip && (
+            <div className="bg-secondary shadow-md rounded-md px-2 py-2">
+              <span>Current Trip</span>
+              <div className="border-accent2 border-1 rounded-md p-2 mt-2 text-xs mb-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <span className="text-accent">Source</span>
+                  <span>{currTrip.source_area}</span>
+                  <span className="text-accent">Destination</span>
+                  <span>{currTrip.destination_area}</span>
+                  <span className="text-accent">Amount</span>
+                  <span>Rs. {currTrip.price}</span>
+                  <button
+                    className="border-1 border-accent border px-2 py-2 hover:bg-accent2"
+                    onClick={handleEndTrip}
+                  >
+                    End Trip
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        <div>map</div>
+        {currTrip && (
+          <div className="px-4">
+            <DriverMap
+              source={currTrip.source}
+              destination={currTrip.destination}
+              driverLocation={currLocation}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

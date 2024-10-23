@@ -1,5 +1,4 @@
 const express = require("express");
-const redis = require("redis");
 const Driver = require("../models/driver.model");
 const User = require("../models/customer.model");
 const TripDetails = require("../models/trip.model");
@@ -7,7 +6,6 @@ const { server } = require("../index");
 const redisClient = require("../utils/redisConnection");
 const { eventEmitter } = require("../utils/socketNamespaceInitialize");
 const io = require("socket.io")(server);
-const driverNamespace = io.of("/drivers");
 
 const router = new express.Router();
 
@@ -56,18 +54,13 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
 
 router.route("/requestTrip").post(async (req, res) => {
   const body = req.body;
-  let cursor = "0";
   let possibleDrivers = [];
-  const result = await redisClient.scan(cursor);
-  cursor = result.cursor;
-  const keys = result.keys;
+  const availableDriverIds = await redisClient.sMembers("availableDrivers");
+  if (availableDriverIds.length > 0) {
+    for (const driverId of availableDriverIds) {
+      const key = `driverLocation:${driverId}`;
 
-  if (keys.length > 0) {
-    for (const key of keys) {
-      if(key.substring(0,15) !== "driverLocation:") {
-        continue;
-      }
-      let driver = await Driver.findOne({ socketId: key.substring(15)});
+      let driver = await Driver.findOne({ _id: driverId });
       if (driver) {
         if (
           driver.country === body.country &&
@@ -75,6 +68,7 @@ router.route("/requestTrip").post(async (req, res) => {
         ) {
           let driverLat = await redisClient.hGet(key, "lat");
           let driverLng = await redisClient.hGet(key, "lng");
+
           if (driverLat && driverLng) {
             let distance = haversineDistance(
               driverLat,
@@ -82,14 +76,17 @@ router.route("/requestTrip").post(async (req, res) => {
               body.source.lat,
               body.source.lng
             );
+
             if (distance <= 5) {
-              possibleDrivers.push(driver.socketId);
+              let socket = await redisClient.hGet(key, "socket");
+              possibleDrivers.push(socket);
             }
           }
         }
       }
-    };
+    }
   }
+  console.log(possibleDrivers);
   if (possibleDrivers.length > 0) {
     // Emit trip request to all possible drivers
     console.log("Sending call to evenEmitter");
@@ -98,6 +95,9 @@ router.route("/requestTrip").post(async (req, res) => {
       source: body.source,
       destination: body.destination,
       amount: body.estimatedAmount,
+      formattedSource: body.formattedSource,
+      formattedDestination: body.formattedDestination,
+      customerSocket: body.socketId,
     });
     res.status(200).json({ message: "Trip request sent to drivers." });
   } else {

@@ -1,4 +1,4 @@
-const redisClient = require('./redisConnection');
+const redisClient = require("./redisConnection");
 const Driver = require("../models/driver.model");
 const { EventEmitter } = require("events");
 
@@ -20,6 +20,11 @@ function initializeNamespaces(io) {
     });
   });
 
+  eventEmitter.on("tripAccepted", (tripDetails) => {
+    console.log("Trip accepted by driver:", tripDetails);
+    customerNamespace.to(tripDetails.customerId).emit("tripAccepted", tripDetails);
+  });
+
   // Handle driver connections
   driverNamespace.on("connection", (socket) => {
     console.log("Driver connected:", socket.id);
@@ -38,9 +43,10 @@ function initializeNamespaces(io) {
           console.log("Updated socket:", updatedDriver.socketId);
         }
 
-        redisClient.sAdd(AVAILABLE_DRIVERS_KEY, socket.id);
+        redisClient.sAdd(AVAILABLE_DRIVERS_KEY, location.driverId);
 
-        await redisClient.hSet(`driverLocation:${socket.id}`, {
+        await redisClient.hSet(`driverLocation:${location.driverId}`, {
+          socket: socket.id,
           driverId: location.driverId,
           lat: location.lat,
           lng: location.lng,
@@ -53,10 +59,11 @@ function initializeNamespaces(io) {
 
     socket.on("driverLocationUpdate", (locationData) => {
       console.log("Driver location update received:", locationData);
-      const driverKey = `driverLocation:${socket.id}`;
+      const driverKey = `driverLocation:${locationData.driverId}`;
       redisClient.hSet(
         driverKey,
         {
+          socket: socket.id,
           driverId: locationData.driverId,
           lat: locationData.lat,
           lng: locationData.lng,
@@ -74,7 +81,7 @@ function initializeNamespaces(io) {
     });
 
     socket.on("driverOffline", async (location) => {
-      if (redisClient.EXISTS(socket.id)) {
+      if (redisClient.EXISTS(location.driverId)) {
         redisClient.sRem(AVAILABLE_DRIVERS_KEY, socket.id);
       }
       const filter = { _id: location.driverId };
@@ -157,5 +164,5 @@ module.exports = {
   },
   get eventEmitter() {
     return eventEmitter;
-  }
+  },
 };

@@ -5,6 +5,7 @@ import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import L from "leaflet";
 import "leaflet-routing-machine";
 import { destinationPin } from "../assets";
+import { driverPin } from "../assets";
 
 const VehicleMap = ({ source, destination, driverLocation }) => {
   const [map, setMap] = useState(null);
@@ -28,7 +29,7 @@ const VehicleMap = ({ source, destination, driverLocation }) => {
 
   const createDriverIcon = () => {
     return new L.Icon({
-      iconUrl: destinationPin,
+      iconUrl: driverPin,
       iconSize: [40, 40],
       iconAnchor: [20, 40],
     });

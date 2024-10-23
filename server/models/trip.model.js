@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 
 const TripSchema = new mongoose.Schema({
-  tripId: { type: Number, required: true, unique: true },
   vehicleId: { type: String, required: true },
-  customerId: { type: Number, required: true },
+  customerId: { type: String, required: true },
   status: {
     type: String,
     enum: ["available", "in-transit", "offline"],
@@ -25,11 +24,6 @@ const TripSchema = new mongoose.Schema({
   start_time: { type: Date },
   end_time: { type: Date },
   price: { type: Number },
-  payment_method: {
-    type: String,
-    enum: ["cash", "upi", "card", "netbanking"],
-    default: "cash",
-  },
 });
 
 module.exports = mongoose.model('Trip', TripSchema);
