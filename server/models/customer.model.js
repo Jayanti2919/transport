@@ -9,6 +9,7 @@ const CustomerSchema = new mongoose.Schema({
   country: { type: String, required: true },
   password: { type: String, required: true },
   trip_history: [{ type: mongoose.Schema.Types.ObjectId, ref: "Trip" }],
+  socket: {type: String, default: ""},
 });
 
 module.exports = mongoose.model("Customer", CustomerSchema);

@@ -9,8 +9,9 @@ import { driverPin } from "../assets";
 
 const VehicleMap = ({ source, destination, driverLocation }) => {
   const [map, setMap] = useState(null);
-  console.log(source.lat, source.lng, destination.lat, destination.lng, driverLocation.lat, driverLocation.lng);
   driverLocation = { lat: parseFloat(driverLocation.lat), lng: parseFloat(driverLocation.lng) };
+  source = { lat: parseFloat(source.lat), lng: parseFloat(source.lng) };
+  destination = { lat: parseFloat(destination.lat), lng: parseFloat(destination.lng) };
   const distance = Math.sqrt(
     Math.pow(destination.lat - source.lat, 2) +
       Math.pow(destination.lng - source.lng, 2)

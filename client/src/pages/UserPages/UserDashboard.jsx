@@ -22,6 +22,14 @@ const UserDashboard = () => {
   const socketId = socket.id;
 
   useEffect(() => {
+    if(!currentTrip) return;
+    socket.on("tripEnded", (trip) => {
+      console.log("Trip ended:", trip);
+      setCurrentTrip(null);
+    });
+  }, []);
+
+  useEffect(() => {
     if (!currentTrip) return;
 
     const fetchDriverLocation = () => {

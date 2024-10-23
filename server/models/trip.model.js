@@ -6,8 +6,8 @@ const TripSchema = new mongoose.Schema({
   customerId: { type: String, required: true },
   status: {
     type: String,
-    enum: ["available", "in-transit", "offline"],
-    default: "available",
+    enum: ["in-transit", "completed"],
+    default: "in-transit",
   },
   source: {
     lat: { type: Number, required: true },

@@ -16,6 +16,7 @@ const DriverApp = () => {
   const token = window.localStorage.getItem("driverAccessToken");
   const [driverData, setDriverData] = useState(null);
   const [currLocation, setCurrentLocation] = useState(null);
+  const [locationLoaded, setLocationLoaded] = useState(false);
   const [socketId, setSocketId] = useState("");
   const [goneOnline, setGoneOnline] = useState(false);
   const [tripRequest, setTripRequest] = useState(null);
@@ -24,6 +25,33 @@ const DriverApp = () => {
   const handleEndTrip = async (e) => {
     e.preventDefault();
     console.log("Ending trip");
+    try {
+      const token = window.localStorage.getItem("driverAccessToken");
+      const response = await axios.post(
+        "http://localhost:5000/driver/api/endTrip",
+        currTrip,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Trip ended successfully");
+        setCurrTrip(null);
+        setOnline(true);
+        setGoneOnline(true);
+      } else {
+        console.error("Failed to end the trip:", response.data.message);
+      }
+    } catch (error) {
+      console.error(
+        "Error accepting the trip:",
+        error.response || error.message
+      );
+    }
   };
 
   const handleAccept = async (e) => {
@@ -87,7 +115,7 @@ const DriverApp = () => {
     return () => {
       socket.off("tripRequest");
     };
-  }, []);
+  }, [currTrip]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -116,6 +144,7 @@ const DriverApp = () => {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       });
+      setLocationLoaded(true);
       socket.emit("driverOnline", locationData);
 
       setGoneOnline(true);
@@ -140,6 +169,7 @@ const DriverApp = () => {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
       });
+      setLocationLoaded(true);
       socket.emit("driverOffline", locationData);
 
       setGoneOnline(false);
@@ -195,6 +225,19 @@ const DriverApp = () => {
 
         if (res.status === 200) {
           setDriverData(res.data.driver);
+          console.log(res.data);
+          if (res.data.lastTrip) {
+            setCurrTrip(res.data.lastTrip);
+            setOnline(true);
+            setGoneOnline(true);
+            navigator.geolocation.getCurrentPosition((position) => {
+              setCurrentLocation({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              });
+              setLocationLoaded(true);
+            });
+          }
         } else {
           console.log(res.data);
         }
@@ -220,6 +263,7 @@ const DriverApp = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
+          setLocationLoaded(true);
           socket.emit("driverLocationUpdate", locationData);
         });
       } else {
@@ -328,7 +372,7 @@ const DriverApp = () => {
             </div>
           )}
         </div>
-        {currTrip && (
+        {currTrip && locationLoaded && (
           <div className="px-4">
             <DriverMap
               source={currTrip.source}

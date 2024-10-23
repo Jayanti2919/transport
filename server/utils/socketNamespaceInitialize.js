@@ -1,5 +1,6 @@
 const redisClient = require("./redisConnection");
 const Driver = require("../models/driver.model");
+const Customer = require("../models/customer.model");
 const { EventEmitter } = require("events");
 
 let driverNamespace;
@@ -20,11 +21,17 @@ function initializeNamespaces(io) {
     });
   });
 
-  eventEmitter.on("tripAccepted", (tripDetails) => {
+  eventEmitter.on("tripAccepted", (tripDetails, socketId) => {
     console.log("Trip accepted by driver:", tripDetails);
     customerNamespace
-      .to(tripDetails.customerId)
+      .to(socketId)
       .emit("tripAccepted", tripDetails);
+  });
+
+  eventEmitter.on("tripEnded", (tripDetails, socketId) => {
+    customerNamespace
+      .to(socketId)
+      .emit("tripEnded", tripDetails);
   });
 
   // Handle driver connections
@@ -132,7 +139,6 @@ function initializeNamespaces(io) {
 
   customerNamespace.on("connection", (socket) => {
     console.log("Customer connected:", socket.id);
-
     socket.on("requestDriverLocation", async (driverId) => {
       console.log("Received request for driver location for driver:", driverId);
       const locationData = await redisClient.hGetAll(

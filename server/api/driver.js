@@ -18,7 +18,42 @@ router.route("/fetchDriverDetails").get(async (req, res) => {
     res.status(500).json({ message: "Could not find driver" });
     return;
   }
-  res.status(200).json({ driver: driver });
+  if (driver.last_trip_id) {
+    var trip = await Trip.findOne({ _id: driver.last_trip_id });
+    if (trip && trip.status === "in-transit") {
+      res.status(200).json({ driver: driver, lastTrip: trip });
+      return;
+    }
+  }
+  res.status(200).json({ driver: driver, lastTrip: null });
+});
+
+router.route("/endTrip").post(async (req, res) => {
+  const body = req.body;
+  console.log(body);
+  var trip = await Trip.findOne({ _id: body._id });
+  if (!trip) {
+    res.status(500).json({ message: "Could not find trip" });
+    return;
+  }
+  trip.end_time = new Date();
+  trip.status = "completed";
+  var customer = await Customer.findOne({ _id: trip.customerId });
+  trip.save();
+
+  var driver = await Driver.findOne({ _id: trip.driverId });
+  if (!driver) {
+    res.status(500).json({ message: "Could not find driver" });
+    return;
+  }
+  driver.status = "available";
+  const driver_id = driver._id.toString();
+  console.log(driver_id);
+  redisClient.sAdd("availableDrivers", driver_id);
+  driver.save();
+
+  eventEmitter.emit("tripEnded", trip, customer.socket);
+  res.status(200).json({ message: "Trip ended successfully" });
 });
 
 router.route("/acceptTrip").post(async (req, res) => {
@@ -51,6 +86,7 @@ router.route("/acceptTrip").post(async (req, res) => {
   });
   driver.current_trip_id = trip._id;
   driver.trip_history.push(trip._id);
+  driver.last_trip_id = trip._id;
   driver.status = "in-transit";
   driver.save();
   customer.trip_history.push(trip._id);
@@ -58,7 +94,7 @@ router.route("/acceptTrip").post(async (req, res) => {
 
   redisClient.sRem("availableDrivers", driver_id);
 
-  eventEmitter.emit("tripAccepted", trip);
+  eventEmitter.emit("tripAccepted", trip, customer.socket);
   res.status(200).json({
     message: "Trip accepted",
     trip,

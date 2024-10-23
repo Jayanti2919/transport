@@ -6,6 +6,7 @@ const { server } = require("../index");
 const redisClient = require("../utils/redisConnection");
 const { eventEmitter } = require("../utils/socketNamespaceInitialize");
 const io = require("socket.io")(server);
+const Customer = require("../models/customer.model");
 
 const router = new express.Router();
 
@@ -57,6 +58,9 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
 
 router.route("/requestTrip").post(async (req, res) => {
   const body = req.body;
+  const filter = { _id: body.customer_id };
+  const update = { socketId: body.socketId };
+  var customer = await Customer.findOneAndUpdate(filter, update);
   let possibleDrivers = [];
   const availableDriverIds = await redisClient.sMembers("availableDrivers");
   if (availableDriverIds.length > 0) {

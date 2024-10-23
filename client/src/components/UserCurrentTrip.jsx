@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import React from "react";
 import io from "socket.io-client";
 import "leaflet/dist/leaflet.css";
 import DriverMap from "./DriverMap";
 
 // Connect to the backend server
-const socket = io("http://localhost:5000"); // Replace with your backend URL
+const socket = io("http://localhost:5000");
 
 const UserCurrentTrip = ({ driverLocation, currentTrip, driverDetails }) => {
   return (
